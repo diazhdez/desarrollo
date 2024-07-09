@@ -2,8 +2,6 @@ from flask import Blueprint, render_template, url_for, redirect, flash, session,
 
 from functions.functions import get_admin
 
-from random import randint
-
 from bson import ObjectId
 
 import bcrypt

@@ -36,9 +36,9 @@
     <header class="header_section">
       <div class="container-fluid">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ url_for('admin.admin') }}">
+          <a class="navbar-brand" href="{{ url_for('user.user') }}">
             <span>
-              Admin
+              Usuario
             </span>
           </a>
 
@@ -65,38 +65,35 @@
     <section class="about_section layout_padding">
       <div class="container-xxl">
         <div class="container">
-          <h2>Aspirantes</h2>
-          <form method="post" action="{{ url_for('admin.users') }}">
-            <div class="row g-2">
+          <h2>Factores</h2>
+          <form method="post" action="{{ url_for('user.factores') }}">
+            <div class="row">
               <div class="col-md-3 mb-3">
-                <input type="text" class="form-control" placeholder="Buscar usuarios" name="search_query">
+                <input type="text" class="form-control" placeholder="Buscar factores" name="search_query">
               </div>
               <div class="col mb-3">
-                <button class="btn btn-primary">Buscar</button>
+                <button class="btn boton">Buscar</button>
               </div>
             </div>
           </form>
           <div class="row g-5">
-            {% for user in users %}
+            {% for factor in factores %}
             <div class="col-md-6 mb-3">
               <div class="card">
                 <div class="card-header">
-                  <h5 class="text-center">{{ user.name }}</h5>
+                  <h5 class="text-center">{{ factor.name }}</h5>
                 </div>
                 <div class="card-body">
-                  <form>
+                  <form method="post" action="{{ url_for('user.edit_factor') }}">
                     <div class="row">
                       <div class="col">
-                        <input type="hidden" class="form-control" value="{{ user._id }}" name="id" readonly>
-                        <small>Email</small>
-                        <input type="text" class="form-control" value="{{ user.email }}" readonly>
-                      </div>
-                      <div class="col">
-                        <small>Número Telefónico</small>
-                        <input type="text" class="form-control" value="{{ user.phone }}" readonly>
+                        <input type="hidden" class="form-control" value="{{ factor._id }}" name="factor_id" readonly>
+                        <small>Cambiar Nombre:</small>
+                        <input class="form-control" value="{{ factor.name }}" name="name">
                       </div>
                     </div>
-                    <a href="{{ url_for('admin.delete_user', user_id=user._id) }}"
+                    <button type="submit" class="btn boton mt-3">Actualizar</button>
+                    <a href="{{ url_for('user.delete_factor', factor_id=factor._id) }}"
                       class="btn btn-danger btn-delete mt-3">Eliminar</a>
                   </form>
                 </div>
@@ -224,6 +221,7 @@
     <!-- bootstrap js -->
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+
 </body>
 
 </html>

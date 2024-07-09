@@ -26,7 +26,6 @@
 
   <!-- responsive style -->
   <link href="{{ url_for('static', filename='css/responsive.css') }}" rel="stylesheet" />
-
 </head>
 
 <body>
@@ -36,7 +35,7 @@
     <header class="header_section">
       <div class="container-fluid">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="index.html">
+          <a class="navbar-brand" href="{{ url_for('user.user') }}">
             <span>
               Usuario
             </span>
@@ -112,56 +111,14 @@
             </div>
             <div class="detail-box">
               <h5>
-                Link Building
+                Agregar
               </h5>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                Agrega nuevos factores
               </p>
-              <a href="">
+              <a href="#" id="openModalLink" data-bs-toggle="modal" data-bs-target="#modalAddFactor">
                 <span>
-                  Read More
-                </span>
-                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="box">
-            <div class="img-box">
-              <img src="{{ url_for('static', filename='images/s2.png') }}" alt="">
-            </div>
-            <div class="detail-box">
-              <h5>
-                On page SEO
-              </h5>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              </p>
-              <a href="">
-                <span>
-                  Read More
-                </span>
-                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="box">
-            <div class="img-box">
-              <img src="{{ url_for('static', filename='images/s3.png') }}" alt="">
-            </div>
-            <div class="detail-box">
-              <h5>
-                Online Marketing
-              </h5>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              </p>
-              <a href="">
-                <span>
-                  Read More
+                  Click
                 </span>
                 <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
               </a>
@@ -175,14 +132,56 @@
             </div>
             <div class="detail-box">
               <h5>
-                Email Marketing
+                Factores
               </h5>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                Ver los factores agregados
+              </p>
+              <a href="{{ url_for('user.factores') }}">
+                <span>
+                  Ver Más
+                </span>
+                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="box">
+            <div class="img-box">
+              <img src="{{ url_for('static', filename='images/s3.png') }}" alt="">
+            </div>
+            <div class="detail-box">
+              <h5>
+                Items
+              </h5>
+              <p>
+                Agrega items a los factores
+              </p>
+              <a href="#" id="openModalLinkNew" data-bs-toggle="modal" data-bs-target="#modalAddItem">
+                <span>
+                  Agregar
+                </span>
+                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="box">
+            <div class="img-box">
+              <img src="{{ url_for('static', filename='images/s2.png') }}" alt="">
+            </div>
+            <div class="detail-box">
+              <h5>
+                Resultados
+              </h5>
+              <p>
+                Ver los resultados dados
               </p>
               <a href="">
                 <span>
-                  Read More
+                  Click
                 </span>
                 <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
               </a>
@@ -193,6 +192,50 @@
     </div>
   </section>
   <!-- end service section -->
+
+  <!-- Modal para agregar factor -->
+  <div class="modal fade" id="modalAddFactor" tabindex="-1" aria-labelledby="modalAddFactorLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAddFactorLabel">Agregar Factor</h5>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="{{ url_for('user.add_factor') }}">
+            <div class="mb-3">
+              <label for="factor" class="form-label">Nombre del Factor</label>
+              <input type="text" class="form-control" id="factor" name="name" required>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn boton">Agregar Factor</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para agregar item -->
+  <div class="modal fade" id="modalAddItem" tabindex="-1" aria-labelledby="modalAddItemLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAddItemLabel">Agregar Item</h5>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="{{ url_for('user.add_item') }}">
+            <div class="mb-3">
+              <label for="item" class="form-label">Item:</label>
+              <input type="text" class="form-control" id="item" name="item" required>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn boton">Agregar Item</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="footer_container">
     <!-- info section -->
@@ -299,6 +342,13 @@
     <!-- footer section -->
   </div>
 
+  <style>
+    .boton {
+      background-color: #f8842b;
+      color: white;
+    }
+  </style>
+
   <!-- jQery -->
   <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
   <!-- popper js -->
@@ -308,6 +358,22 @@
   <!-- bootstrap js -->
   <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
   <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+
+  <script>
+    document.getElementById('openModalLink').addEventListener('click', function (event) {
+      event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
+      var myModal = new bootstrap.Modal(document.getElementById('modalAddFactor'));
+      myModal.show();
+    });
+  </script>
+
+  <script>
+    document.getElementById('openModalLinkNew').addEventListener('click', function (event) {
+      event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
+      var myModal = new bootstrap.Modal(document.getElementById('modalAddItem'));
+      myModal.show();
+    });
+  </script>
 
 </body>
 
