@@ -12,7 +12,7 @@
   <meta name="description" content="" />
   <meta name="author" content="" />
 
-  <title>Digian</title>
+  <title>COMPITE</title>
 
 
   <!-- bootstrap core css -->
@@ -86,16 +86,35 @@
                 <div class="card-body">
                   <form method="post" action="{{ url_for('user.edit_factor') }}">
                     <div class="row">
-                      <div class="col">
-                        <input type="hidden" class="form-control" value="{{ factor._id }}" name="factor_id" readonly>
-                        <small>Cambiar Nombre:</small>
-                        <input class="form-control" value="{{ factor.name }}" name="name">
-                      </div>
                     </div>
-                    <button type="submit" class="btn boton mt-3">Actualizar</button>
+                    <a href="" class="btn boton mt-3" id="btn-edit{{ factor._id }}" data-bs-toggle="modal"
+                      data-bs-target="#modal{{ factor._id }}">Ver Items</a>
                     <a href="{{ url_for('user.delete_factor', factor_id=factor._id) }}"
                       class="btn btn-danger btn-delete mt-3">Eliminar</a>
                   </form>
+                </div>
+              </div>
+            </div>
+            <div class="modal fade" id="modal{{ factor._id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalLabel{{ factor._id }}">{{ factor.name }}</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form method="post" action="{{ url_for('user.edit_factor') }}">
+                      <input type="hidden" class="form-control" value="{{ factor._id }}" name="factor_id" readonly>
+                      <div class="col">
+                        <small>Cambiar Nombre:</small>
+                        <input class="form-control" value="{{ factor.name }}" name="name">
+                      </div>
+                      <div class="modal-footer mt-3">
+                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
@@ -117,7 +136,8 @@
                   Digian
                 </h4>
                 <p>
-                  Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200
+                  Necessary, making this the first true generator on the Internet. It uses a dictionary of
+                  over 200
                   Latin
                   words, combined with a handful
                 </p>
@@ -221,6 +241,7 @@
     <!-- bootstrap js -->
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/delete.js') }}"></script>
 
 </body>
 

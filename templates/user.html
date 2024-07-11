@@ -12,7 +12,7 @@
   <meta name="description" content="" />
   <meta name="author" content="" />
 
-  <title>Digian</title>
+  <title>COMPITE</title>
 
 
   <!-- bootstrap core css -->
@@ -75,7 +75,7 @@
                 <div class="col-md-6">
                   <div class="detail-box">
                     <h1>
-                      ¡Bienvenido Usuario!
+                      ¡Bienvenid@ {{ user.name }}!
                     </h1>
                     <p>
                       Aenean scelerisque felis ut orci condimentum laoreet. Integer nisi nisl, convallis et augue sit
@@ -93,7 +93,7 @@
   </div>
 
   <!-- service section -->
-  <section class="service_section layout_padding">
+  <section class="service_section layout_padding" id="opciones">
     <div class="container">
       <div class="heading_container">
         <h2>
@@ -102,8 +102,36 @@
         <p>
           consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-info" role="alert">
+          {{ messages[0] }}
+        </div>
+        {% endif %}
+        {% endwith %}
       </div>
       <div class="row">
+        <div class="col-md-6 col-lg-3">
+          <div class="box">
+            <div class="img-box">
+              <img src="{{ url_for('static', filename='images/s3.png') }}" alt="">
+            </div>
+            <div class="detail-box">
+              <h5>
+                Factores
+              </h5>
+              <p>
+                Agrega nuevos factores
+              </p>
+              <a href="#" id="openModalLink" data-bs-toggle="modal" data-bs-target="#modalAddFactor">
+                <span>
+                  Agregar
+                </span>
+                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        </div>
         <div class="col-md-6 col-lg-3">
           <div class="box">
             <div class="img-box">
@@ -111,14 +139,14 @@
             </div>
             <div class="detail-box">
               <h5>
-                Agregar
+                Items
               </h5>
               <p>
-                Agrega nuevos factores
+                Agrega items a los factores
               </p>
-              <a href="#" id="openModalLink" data-bs-toggle="modal" data-bs-target="#modalAddFactor">
+              <a href="#" id="openModalLinkNew" data-bs-toggle="modal" data-bs-target="#modalAddItem">
                 <span>
-                  Click
+                  Agregar
                 </span>
                 <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
               </a>
@@ -132,7 +160,7 @@
             </div>
             <div class="detail-box">
               <h5>
-                Factores
+                Ver
               </h5>
               <p>
                 Ver los factores agregados
@@ -140,27 +168,6 @@
               <a href="{{ url_for('user.factores') }}">
                 <span>
                   Ver Más
-                </span>
-                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="box">
-            <div class="img-box">
-              <img src="{{ url_for('static', filename='images/s3.png') }}" alt="">
-            </div>
-            <div class="detail-box">
-              <h5>
-                Items
-              </h5>
-              <p>
-                Agrega items a los factores
-              </p>
-              <a href="#" id="openModalLinkNew" data-bs-toggle="modal" data-bs-target="#modalAddItem">
-                <span>
-                  Agregar
                 </span>
                 <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
               </a>
@@ -193,21 +200,25 @@
   </section>
   <!-- end service section -->
 
-  <!-- Modal para agregar factor -->
+  <!-- Modal para agregar factores -->
   <div class="modal fade" id="modalAddFactor" tabindex="-1" aria-labelledby="modalAddFactorLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalAddFactorLabel">Agregar Factor</h5>
+          <h5 class="modal-title" id="modalAddFactorLabel">Agregar Factores</h5>
         </div>
         <div class="modal-body">
-          <form method="post" action="{{ url_for('user.add_factor') }}">
-            <div class="mb-3">
-              <label for="factor" class="form-label">Nombre del Factor</label>
-              <input type="text" class="form-control" id="factor" name="name" required>
+          <form method="post" action="{{ url_for('user.add_factors') }}" id="factorsForm">
+            <div id="factorsContainer">
+              <div class="mb-3 factor-input">
+                <label for="factorName0" class="form-label">Nombre del Factor</label>
+                <input type="text" class="form-control" id="factorName0" name="names[]" required>
+              </div>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn boton">Agregar Factor</button>
+              <button type="button" class="btn btn-secondary" id="addFactor">Agregar Otro Factor</button>
+              <button type="button" class="btn btn-danger" id="removeFactor">Eliminar Último Factor</button>
+              <button type="submit" class="btn boton">Agregar Factores</button>
             </div>
           </form>
         </div>
@@ -215,7 +226,7 @@
     </div>
   </div>
 
-  <!-- Modal para agregar item -->
+  <!-- Modal para agregar items -->
   <div class="modal fade" id="modalAddItem" tabindex="-1" aria-labelledby="modalAddItemLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -223,13 +234,23 @@
           <h5 class="modal-title" id="modalAddItemLabel">Agregar Item</h5>
         </div>
         <div class="modal-body">
-          <form method="post" action="{{ url_for('user.add_item') }}">
+          <form method="post" action="{{ url_for('user.add_items') }}" id="itemsForm">
             <div class="mb-3">
-              <label for="item" class="form-label">Item:</label>
-              <input type="text" class="form-control" id="item" name="item" required>
+              <label for="factorSelect" class="form-label">Seleccionar Factor</label>
+              <select class="form-control" id="factorSelect" name="factor_id" required>
+                <!-- Aquí se llenará dinámicamente con los factores existentes -->
+              </select>
+            </div>
+            <div id="itemsContainer">
+              <div class="mb-3 item-input">
+                <label for="itemName0" class="form-label">Item</label>
+                <input type="text" class="form-control" id="itemName0" name="names[]" required>
+              </div>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn boton">Agregar Item</button>
+              <button type="button" class="btn btn-secondary" id="addItem">Agregar Otro Item</button>
+              <button type="button" class="btn btn-danger" id="removeItem">Eliminar Último Item</button>
+              <button type="submit" class="btn boton">Agregar Items</button>
             </div>
           </form>
         </div>
@@ -351,10 +372,12 @@
 
   <!-- jQery -->
   <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+
   <!-- popper js -->
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
     integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
     </script>
+
   <!-- bootstrap js -->
   <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
   <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
@@ -372,6 +395,67 @@
       event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
       var myModal = new bootstrap.Modal(document.getElementById('modalAddItem'));
       myModal.show();
+    });
+  </script>
+
+  <script>
+    let factorCount = 1; // Contador de factores
+
+    document.getElementById('addFactor').addEventListener('click', function () {
+      const newFactor = document.createElement('div');
+      newFactor.classList.add('mb-3', 'factor-input');
+      newFactor.innerHTML = `
+      <label for="factorName${factorCount}" class="form-label">Nombre del Factor</label>
+      <input type="text" class="form-control" id="factorName${factorCount}" name="names[]" required>
+    `;
+      document.getElementById('factorsContainer').appendChild(newFactor);
+      factorCount++;
+    });
+
+    document.getElementById('removeFactor').addEventListener('click', function () {
+      const factorsContainer = document.getElementById('factorsContainer');
+      if (factorCount > 1) {
+        factorsContainer.removeChild(factorsContainer.lastChild);
+        factorCount--;
+      }
+    });
+  </script>
+
+  <script>
+    let itemCount = 1;
+
+    document.getElementById('addItem').addEventListener('click', function () {
+      const newItem = document.createElement('div');
+      newItem.classList.add('mb-3', 'item-input');
+      newItem.innerHTML = `
+          <label for="itemName${itemCount}" class="form-label">Item</label>
+          <input type="text" class="form-control" id="itemName${itemCount}" name="names[]" required>
+      `;
+      document.getElementById('itemsContainer').appendChild(newItem);
+      itemCount++;
+    });
+
+    document.getElementById('removeItem').addEventListener('click', function () {
+      const itemsContainer = document.getElementById('itemsContainer');
+      if (itemCount > 1) {
+        itemsContainer.removeChild(itemsContainer.lastChild);
+        itemCount--;
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('/get_user_factors')
+        .then(response => response.json())
+        .then(data => {
+          const factorSelect = document.getElementById('factorSelect');
+          data.factors.forEach(factor => {
+            const option = document.createElement('option');
+            option.value = factor._id;
+            option.textContent = factor.name;
+            factorSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Error:', error));
     });
   </script>
 
