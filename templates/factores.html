@@ -84,24 +84,22 @@
                   <h5 class="text-center">{{ factor.name }}</h5>
                 </div>
                 <div class="card-body">
-                  <form method="post" action="{{ url_for('user.edit_factor') }}">
+                  <form>
                     <div class="row">
                     </div>
-                    <a href="" class="btn boton mt-3" id="btn-edit{{ factor._id }}" data-bs-toggle="modal"
-                      data-bs-target="#modal{{ factor._id }}">Ver Items</a>
+                    <a href="#" class="btn boton mt-3" id="openModal" data-bs-toggle="modal" data-bs-target="#modalViewFactor">Ver Items</a>
                     <a href="{{ url_for('user.delete_factor', factor_id=factor._id) }}"
                       class="btn btn-danger btn-delete mt-3">Eliminar</a>
                   </form>
                 </div>
               </div>
             </div>
-            <div class="modal fade" id="modal{{ factor._id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+            <div class="modal fade" id="modalViewFactor" tabindex="-1" aria-labelledby="modalViewFactorLabel"
               aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
                   <div class="modal-header">
                     <h1 class="modal-title fs-5" id="modalLabel{{ factor._id }}">{{ factor.name }}</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
                     <form method="post" action="{{ url_for('user.edit_factor') }}">
@@ -111,7 +109,7 @@
                         <input class="form-control" value="{{ factor.name }}" name="name">
                       </div>
                       <div class="modal-footer mt-3">
-                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                        <button type="submit" class="btn boton">Actualizar</button>
                       </div>
                     </form>
                   </div>
@@ -219,6 +217,7 @@
     </div>
 
     <style>
+      h1,
       h5,
       small,
       .messages,
@@ -242,6 +241,14 @@
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
     <script src="{{ url_for('static', filename='js/delete.js') }}"></script>
+
+    <script>
+      document.getElementById('openModal').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
+        var myModal = new bootstrap.Modal(document.getElementById('modalViewFactor'));
+        myModal.show();
+      });
+    </script>
 
 </body>
 
