@@ -27,6 +27,9 @@
   <!-- responsive style -->
   <link href="{{ url_for('static', filename='css/responsive.css') }}" rel="stylesheet" />
 
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -86,15 +89,17 @@
                 <div class="card-body">
                   <form>
                     <div class="row">
+                      <input type="hidden" class="form-control" value="{{ factor._id }}" name="id" readonly>
                     </div>
-                    <a href="#" class="btn boton mt-3" id="openModal" data-bs-toggle="modal" data-bs-target="#modalViewFactor">Ver Items</a>
+                    <button class="btn boton mt-3" id="btn-edit{{ factor._id }}" data-bs-toggle="modal"
+                      data-bs-target="#modal{{ factor._id }}">Ver items</button>
                     <a href="{{ url_for('user.delete_factor', factor_id=factor._id) }}"
                       class="btn btn-danger btn-delete mt-3">Eliminar</a>
                   </form>
                 </div>
               </div>
             </div>
-            <div class="modal fade" id="modalViewFactor" tabindex="-1" aria-labelledby="modalViewFactorLabel"
+            <div class="modal fade" id="modal{{factor._id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
               aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
@@ -241,14 +246,9 @@
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
     <script src="{{ url_for('static', filename='js/delete.js') }}"></script>
-
-    <script>
-      document.getElementById('openModal').addEventListener('click', function (event) {
-        event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
-        var myModal = new bootstrap.Modal(document.getElementById('modalViewFactor'));
-        myModal.show();
-      });
-    </script>
+    <!-- Bootstrap JS y dependencias de Popper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
 
 </body>
 

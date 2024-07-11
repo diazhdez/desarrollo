@@ -55,8 +55,7 @@ def add_factors():
                             duplicated_factors.append(name)
 
                 if duplicated_factors:
-                    flash(f'Los siguientes factores ya existen: {
-                          ", ".join(duplicated_factors)}', 'danger')
+                    flash(f'Los siguientes factores ya existen: {", ".join(duplicated_factors)}', 'danger')
                 else:
                     flash('Se agregaron los factores correctamente', 'info')
 
