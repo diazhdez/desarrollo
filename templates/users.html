@@ -38,7 +38,7 @@
         <nav class="navbar navbar-expand-lg custom_nav-container ">
           <a class="navbar-brand" href="{{ url_for('admin.admin') }}">
             <span>
-              Admin
+              Clima Laboral
             </span>
           </a>
 
@@ -65,14 +65,14 @@
     <section class="about_section layout_padding">
       <div class="container-xxl">
         <div class="container">
-          <h2>Aspirantes</h2>
+          <h2>Gerentes</h2>
           <form method="post" action="{{ url_for('admin.users') }}">
             <div class="row g-2">
               <div class="col-md-3 mb-3">
                 <input type="text" class="form-control" placeholder="Buscar usuarios" name="search_query">
               </div>
               <div class="col mb-3">
-                <button class="btn btn-primary">Buscar</button>
+                <button class="btn boton">Buscar</button>
               </div>
             </div>
           </form>
@@ -84,18 +84,29 @@
                   <h5 class="text-center">{{ user.name }}</h5>
                 </div>
                 <div class="card-body">
-                  <form>
+                  <form method="post" action="{{ url_for('admin.edit_user') }}">
+                    <div class="row">
+                      <input type="hidden" class="form-control" value="{{ user._id }}" name="user_id" readonly>
+                      <div class="col">
+                        <small>Nombre</small>
+                        <input type="text" class="form-control" value="{{ user.name }}" name="name">
+                      </div>
+                      <div class="col">
+                        <small>Email</small>
+                        <input type="text" class="form-control" value="{{ user.email }}" name="email">
+                      </div>
+                    </div>
                     <div class="row">
                       <div class="col">
-                        <input type="hidden" class="form-control" value="{{ user._id }}" name="id" readonly>
-                        <small>Email</small>
-                        <input type="text" class="form-control" value="{{ user.email }}" readonly>
+                        <small>Empresa</small>
+                        <input type="text" class="form-control" value="{{ user.empresa }}" name="empresa">
                       </div>
                       <div class="col">
                         <small>Número Telefónico</small>
-                        <input type="text" class="form-control" value="{{ user.phone }}" readonly>
+                        <input type="text" class="form-control" value="{{ user.phone }}" name="phone">
                       </div>
                     </div>
+                    <button type="submit" class="btn boton mt-3">Actualizar</button>
                     <a href="{{ url_for('admin.delete_user', user_id=user._id) }}"
                       class="btn btn-danger btn-delete mt-3">Eliminar</a>
                   </form>
@@ -117,7 +128,7 @@
             <div class="col-md-6 col-lg-3 ">
               <div class="info_detail">
                 <h4>
-                  Digian
+                  Clima Laboral
                 </h4>
                 <p>
                   Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200
@@ -224,6 +235,8 @@
     <!-- bootstrap js -->
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/delete.js') }}"></script>
+
 </body>
 
 </html>

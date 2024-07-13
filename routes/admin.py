@@ -54,6 +54,7 @@ def register_user():
                 name = request.form['name']
                 email = request.form['email']
                 password = request.form['password']
+                empresa = request.form['empresa']
                 phone = request.form['phone']
 
                 if existing_user is None:
@@ -63,6 +64,7 @@ def register_user():
                         'name': name,
                         'email': email,
                         'password': hashpass,
+                        'empresa': empresa,
                         'phone': phone
                     })
                     flash('Se registró el usuario correctamente')
@@ -113,7 +115,7 @@ def register_admin():
     return redirect(url_for('admin.registro'))
 
 
-# Ruta para visualizar los aspirantes
+# Ruta para visualizar los gerentes
 @admin_routes.route('/admin/listas/users/', methods=['POST', 'GET'])
 def users():
     if 'email' in session:
@@ -127,12 +129,46 @@ def users():
                     '$or': [
                         {'name': {'$regex': search_query, '$options': 'i'}},
                         {'email': {'$regex': search_query, '$options': 'i'}},
+                        {'empresa': {'$regex': search_query, '$options': 'i'}},
                     ]
                 })
             else:
                 users = db['users'].find()
 
             return render_template('users.html', users=users)
+        else:
+            return redirect(url_for('session.login'))
+    else:
+        return redirect(url_for('session.login'))
+
+
+# Metodo para editar users
+@admin_routes.route('/edit/user/', methods=['POST'])
+def edit_user():
+    if 'email' in session:
+        email = session['email']
+        # Función para obtener datos del usuario desde MongoDB
+        admin = get_admin(email)
+        if admin:
+            if request.method == 'POST':
+                user_id = request.form.get('user_id')
+                new_name = request.form.get('name')
+                new_email = request.form.get('email')
+                new_empresa = request.form.get('empresa')
+                new_phone = request.form.get('phone')
+
+                user = db['users']
+                user.update_one(
+                    {'_id': ObjectId(user_id)},
+                    {'$set': {
+                        'name': new_name,
+                        'email': new_email,
+                        'empresa': new_empresa,
+                        'phone': new_phone
+                    }}
+                )
+
+            return redirect(url_for('admin.users'))
         else:
             return redirect(url_for('session.login'))
     else:

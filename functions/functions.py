@@ -11,3 +11,8 @@ def get_user(email):
 def get_admin(email):
     admin = db['admin'].find_one({'email': email})
     return admin
+
+
+def get_sub(email):
+    sub = db['subordinados'].find_one({'email': email})
+    return sub

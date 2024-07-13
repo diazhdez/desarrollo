@@ -6,6 +6,10 @@ from bson import ObjectId
 
 from bson.errors import InvalidId
 
+from random import randint
+
+import bcrypt
+
 import database.database as dbase
 
 db = dbase.dbConnection()
@@ -47,7 +51,8 @@ def add_factors():
 
                 for name in names:
                     if name.strip():  # Asegurarse de que el nombre no esté vacío
-                        existing_factor = factors.find_one({'name': name, 'user_id': user_id})
+                        existing_factor = factors.find_one(
+                            {'name': name, 'user_id': user_id})
                         if existing_factor is None:
                             factors.insert_one(
                                 {'name': name, 'user_id': user_id})
@@ -55,7 +60,8 @@ def add_factors():
                             duplicated_factors.append(name)
 
                 if duplicated_factors:
-                    flash(f'Los siguientes factores ya existen: {", ".join(duplicated_factors)}', 'danger')
+                    flash(f'Los siguientes factores ya existen: {
+                          ", ".join(duplicated_factors)}', 'danger')
                 else:
                     flash('Se agregaron los factores correctamente', 'info')
 
@@ -76,7 +82,8 @@ def factores():
         user = get_user(email)
         if user:
             factores = []
-            user_id = str(user['_id'])  # Asegúrate de que user_id sea un string
+            # Asegúrate de que user_id sea un string
+            user_id = str(user['_id'])  # Obtener el user_id del usuario
 
             if request.method == 'POST':
                 search_query = request.form.get('search_query')
@@ -139,44 +146,15 @@ def edit_factor():
         return redirect(url_for('session.login'))
 
 
-# Ruta para agregar items
-@user_routes.route('/add/item/', methods=['POST', 'GET'])
-def add_item():
-    if 'email' in session:
-        email = session['email']
-        # Función para obtener datos del usuario desde MongoDB
-        user = get_user(email)
-        if user:
-            if request.method == 'POST':
-                item = db['items']
-                existing_item = item.find_one(
-                    {'name': request.form['name']})
-                name = request.form['name']
-
-                if existing_item is None:
-                    item.insert_one({
-                        'name': name,
-
-                    })
-                    flash('Se agregó el item correctamente')
-                    return redirect(url_for('user.user'))
-
-                flash('Este item ya existe')
-                return redirect(url_for('user.user'))
-        else:
-            return redirect(url_for('session.login'))
-    else:
-        return redirect(url_for('session.login'))
-    
-
 @user_routes.route('/get_user_factors', methods=['GET'])
 def get_user_factors():
     if 'email' in session:
         email = session['email']
         user = get_user(email)
         if user:
-            user_id = str(user['_id'])
-            factors = list(db['factores'].find({'user_id': user_id}, {'name': 1}))
+            user_id = str(user['_id'])  # Obtener el user_id del usuario
+            factors = list(db['factores'].find(
+                {'user_id': user_id}, {'name': 1}))
             # Convertir ObjectId a cadena
             for factor in factors:
                 factor['_id'] = str(factor['_id'])
@@ -205,13 +183,15 @@ def add_items():
                     return redirect(url_for('user.user') + '#opciones')
 
                 try:
-                    factor = db['factores'].find_one({'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
+                    factor = db['factores'].find_one(
+                        {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
                 except InvalidId:
                     flash('Factor ID no válido', 'danger')
                     return redirect(url_for('user.user') + '#opciones')
 
                 if not factor:
-                    flash('El factor seleccionado no existe o no pertenece al usuario', 'danger')
+                    flash(
+                        'El factor seleccionado no existe o no pertenece al usuario', 'danger')
                     return redirect(url_for('user.user') + '#opciones')
 
                 for name in names:
@@ -228,7 +208,8 @@ def add_items():
                             duplicated_items.append(name)
 
                 if duplicated_items:
-                    flash(f'Los siguientes items ya existen en el factor: {", ".join(duplicated_items)}', 'danger')
+                    flash(f'Los siguientes items ya existen en el factor: {
+                          ", ".join(duplicated_items)}', 'danger')
                 else:
                     flash('Se agregaron los items correctamente', 'info')
 
@@ -237,3 +218,171 @@ def add_items():
             return redirect(url_for('session.login'))
     else:
         return redirect(url_for('session.login'))
+
+
+# Ruta para visualizar items
+@user_routes.route('/user/factor/<factor_id>/items', methods=['GET'])
+def view_items(factor_id):
+    if 'email' in session:
+        email = session['email']
+        user = get_user(email)
+        if user:
+            factor = db['factores'].find_one(
+                {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
+            if factor:
+                items = factor.get('items', [])
+                return render_template('items.html', factor=factor, items=items)
+            else:
+                flash("Factor no encontrado o no tienes permiso para verlo.")
+                return redirect(url_for('user.factores'))
+        else:
+            return redirect(url_for('session.login'))
+    else:
+        return redirect(url_for('session.login'))
+
+
+# Ruta para eliminar items
+@user_routes.route('/user/factor/<factor_id>/item/<item_name>/delete', methods=['POST'])
+def delete_item(factor_id, item_name):
+    if 'email' in session:
+        email = session['email']
+        user = get_user(email)
+        if user:
+            factor = db['factores'].find_one(
+                {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
+            if factor:
+                items = factor.get('items', [])
+                updated_items = [
+                    item for item in items if item['name'] != item_name]
+
+                db['factores'].update_one(
+                    {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])},
+                    {'$set': {'items': updated_items}}
+                )
+                flash("Ítem eliminado correctamente.")
+                return redirect(url_for('user.view_items', factor_id=factor_id))
+            else:
+                flash("Factor no encontrado o no tienes permiso para eliminar ítems.")
+                return redirect(url_for('user.factores'))
+        else:
+            return redirect(url_for('session.login'))
+    else:
+        return redirect(url_for('session.login'))
+
+
+# Ruta para actualizar un item
+@user_routes.route('/user/factor/<factor_id>/item/<item_name>/update', methods=['POST'])
+def update_item(factor_id, item_name):
+    if 'email' in session:
+        email = session['email']
+        user = get_user(email)
+        if user:
+            factor = db['factores'].find_one(
+                {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
+            if factor:
+                new_name = request.form.get('new_name')
+                items = factor.get('items', [])
+                for item in items:
+                    if item['name'] == item_name:
+                        item['name'] = new_name
+                        break
+
+                db['factores'].update_one(
+                    {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])},
+                    {'$set': {'items': items}}
+                )
+                flash("Ítem actualizado correctamente.")
+                return redirect(url_for('user.view_items', factor_id=factor_id))
+            else:
+                flash("Factor no encontrado o no tienes permiso para verlo.")
+                return redirect(url_for('user.factores'))
+        else:
+            return redirect(url_for('session.login'))
+    else:
+        return redirect(url_for('session.login'))
+
+
+# Ruta para registrar subordinados
+@user_routes.route('/register/subordinado/', methods=['POST', 'GET'])
+def register_sub():
+    if 'email' in session:
+        email = session['email']
+        # Función para obtener datos del usuario desde MongoDB
+        user = get_user(email)
+        if user:
+            if request.method == 'POST':
+                # Obtener la cantidad de usuarios a registrar desde el formulario
+                num_subs = int(request.form['num_subs'])
+                # Contraseña predeterminada para todos los usuarios
+                password = request.form['password']
+                user_id = str(user['_id'])  # Obtener el user_id del asesor
+                asesor = user['name']
+                empresa = user['empresa']
+
+                sub = db['subordinados']
+
+                # Generar los documentos de los usuarios
+                sub_docs = []
+                for _ in range(num_subs):
+                    email = str(randint(100000, 999999))
+                    hashpass = bcrypt.hashpw(
+                        password.encode('utf-8'), bcrypt.gensalt())
+                    sub_docs.append({
+                        'email': email,
+                        'password': hashpass,
+                        'user_id': user_id,
+                        'asesor': asesor,
+                        'empresa': empresa
+                    })
+
+                # Insertar los documentos de los subordinados en la base de datos
+                sub.insert_many(sub_docs)
+
+                flash(f'Se registraron {num_subs} subordinados correctamente')
+                return redirect(url_for('user.user') + '#opciones')
+        else:
+            return redirect(url_for('session.login'))
+
+    return redirect(url_for('session.login'))
+
+
+# Ruta para visualizar los subordinados
+@user_routes.route('/user/listas/subordinados/', methods=['POST', 'GET'])
+def subordinados():
+    if 'email' in session:
+        email = session['email']
+        # Función para obtener datos del usuario desde MongoDB
+        user = get_user(email)
+        if user:
+            subs = []
+            # Asegúrate de que user_id sea un string
+            user_id = str(user['_id'])  # Obtener el user_id del usuario
+
+            if request.method == 'POST':
+                search_query = request.form.get('search_query')
+                subs = db['subordinados'].find({
+                    '$or': [
+                        {'email': {'$regex': search_query, '$options': 'i'}},
+                        {'empresa': {'$regex': search_query, '$options': 'i'}},
+                        {'asesor': {'$regex': search_query, '$options': 'i'}},
+                        {'genero': {'$regex': search_query, '$options': 'i'}},
+                        {'age': {'$regex': search_query, '$options': 'i'}},
+                        {'antiguedad': {'$regex': search_query, '$options': 'i'}},
+                    ]
+                })
+            else:
+                subs = db['subordinados'].find({'user_id': user_id})
+
+            return render_template('subs.html', subordinados=subs)
+        else:
+            return redirect(url_for('session.login'))
+    else:
+        return redirect(url_for('session.login'))
+
+
+# Method DELETE para usuarios
+@user_routes.route('/delete/subordinado/<string:sub_id>/')
+def delete_sub(sub_id):
+    sub = db['subordinados']
+    sub.delete_one({'_id': ObjectId(sub_id)})
+    return redirect(url_for('user.subordinados'))

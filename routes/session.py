@@ -19,12 +19,17 @@ def login():
         # Función para obtener datos del usuario desde MongoDB
         admin = get_admin(email)
         user = get_user(email)
+        sub = get_sub(email)
 
         if admin:
             return redirect(url_for('admin.admin'))
         
         if user:
             return redirect(url_for('user.user'))
+        
+        if sub:
+            return redirect(url_for('sub.sub'))
+
     else:
         return render_template('login.html')
 
@@ -34,10 +39,11 @@ def login():
 def iniciar():
     admin = db['admin']
     users = db['users']
+    sub = db['subordinados']
     email = request.form['email']
     password = request.form['password']
 
-    # Buscar en la colección de admin
+    # Buscar en la colección de users
     login_user = users.find_one({'email': email})
     if login_user and bcrypt.checkpw(password.encode('utf-8'), login_user['password']):
         session['email'] = email
@@ -48,6 +54,12 @@ def iniciar():
     if login_admin and bcrypt.checkpw(password.encode('utf-8'), login_admin['password']):
         session['email'] = email
         return redirect(url_for('admin.admin'))
+    
+    # Buscar en la colección de subprdinados
+    login_sub = sub.find_one({'email': email})
+    if login_sub and bcrypt.checkpw(password.encode('utf-8'), login_sub['password']):
+        session['email'] = email
+        return redirect(url_for('sub.sub'))
 
     flash('Correo o contraseña incorrectos')
     return redirect(url_for('session.login'))

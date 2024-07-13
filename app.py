@@ -8,6 +8,8 @@ from routes.admin import admin_routes
 
 from routes.user import user_routes
 
+from routes.sub import sub_routes
+
 import os
 
 app = Flask(__name__)
@@ -22,6 +24,8 @@ app.register_blueprint(session_routes)
 app.register_blueprint(admin_routes)
 
 app.register_blueprint(user_routes)
+
+app.register_blueprint(sub_routes)
 
 # Ruta para manejar páginas no encontradas
 @app.errorhandler(404)
