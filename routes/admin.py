@@ -167,7 +167,7 @@ def edit_user():
                         'phone': new_phone
                     }}
                 )
-
+            flash('Asesor editado correctamente.')
             return redirect(url_for('admin.users'))
         else:
             return redirect(url_for('session.login'))
@@ -178,9 +178,16 @@ def edit_user():
 # Method DELETE para usuarios
 @admin_routes.route('/deleteUser/<string:user_id>/')
 def delete_user(user_id):
-    users = db['users']
-    users.delete_one({'_id': ObjectId(user_id)})
-    return redirect(url_for('admin.users'))
+    if 'email' in session:
+        email = session['email']
+        admin = get_admin(email)
+        if admin:
+            users = db['users']
+            users.delete_one({'_id': ObjectId(user_id)})
+            flash('Asesor eliminado correctamente.')
+            return redirect(url_for('admin.users'))
+        else:
+            return redirect
 
 
 # Ruta para visualizar los administradores
@@ -201,6 +208,15 @@ def admins():
 # Method DELETE para administradores
 @admin_routes.route('/deleteAdmin/<string:admin_id>/')
 def delete_admin(admin_id):
-    admin = db['admin']
-    admin.delete_one({'_id': ObjectId(admin_id)})
-    return redirect(url_for('admin.admins'))
+    if 'email' in session:
+        email = session['email']
+        admin = get_admin(email)
+        if admin:
+            admin = db['admin']
+            admin.delete_one({'_id': ObjectId(admin_id)})
+            flash('Administrador eliminado correctamente.')
+            return redirect(url_for('admin.admins'))
+        else:
+            return redirect(url_for('session.login'))
+    else:
+        return redirect(url_for('session.login'))

@@ -107,14 +107,22 @@ def submit_responses(factor_id):
         email = session['email']
         sub = get_sub(email)
         if sub:
-            responses = {}
+            # Crear un documento de respuesta
+            responses = []
             for key, value in request.form.items():
                 if value:
                     item_index = key.split('_')[1]
-                    responses[item_index] = value
-
-            # Procesa las respuestas (guardarlas en la base de datos, etc.)
-            # Puedes usar factor_id para asociar las respuestas con el factor correspondiente
+                    responses.append({
+                        "item_id": item_index,
+                        "response": int(value)
+                    })
+            
+            # Insertar respuestas en la colección de respuestas
+            db['respuestas'].insert_one({
+                "subordinado_id": sub['_id'],
+                "factor_id": ObjectId(factor_id),
+                "responses": responses
+            })
 
             flash("Respuestas enviadas exitosamente.")
             return redirect(url_for('sub.cuestionario'))

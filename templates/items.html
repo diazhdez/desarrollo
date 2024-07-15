@@ -69,13 +69,20 @@
       <div class="container-xxl">
         <div class="container">
           <h2>Items del Factor: {{ factor.name }}</h2>
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <div class="alert alert-info" role="alert">
+            {{ messages[0] }}
+          </div>
+          {% endif %}
+          {% endwith %}
           <ul class="list-group">
             {% for item in items %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span>{{ item.name }}</span>
               <div>
                 <button class="btn boton btn-sm" data-toggle="modal" data-target="#editModal"
-                  data-item="{{ item.name }}">Editar</button>
+                  data-item="{{ item.name }}" data-item-id="{{ item._id }}">Editar</button>
                 <form action="{{ url_for('user.delete_item', factor_id=factor._id, item_id=item._id) }}" method="post"
                   style="display:inline;">
                   <button type="submit" class="btn btn-danger btn-sm btn-delete">Eliminar</button>
@@ -235,16 +242,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
 
+    <!-- Script para manejar la ventana modal -->
     <script>
       $('#editModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var itemName = button.data('item');
+        var itemId = button.data('item-id');  // Obtenemos el ID del ítem
         var modal = $(this);
         modal.find('.modal-body textarea#new_name').val(itemName);
-        var formAction = "{{ url_for('user.update_item', factor_id=factor._id, item_name='') }}" + encodeURIComponent(itemName);
+
+        var factorId = "{{ factor._id }}";  // Asegurándonos de obtener el factor ID correctamente
+        var formAction = "{{ url_for('user.update_item', factor_id='FACTOR_ID', item_id='ITEM_ID') }}"
+          .replace('FACTOR_ID', factorId)
+          .replace('ITEM_ID', itemId);
         $('#editForm').attr('action', formAction);
       });
     </script>
+
+
 
 </body>
 

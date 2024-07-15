@@ -60,8 +60,7 @@ def add_factors():
                             duplicated_factors.append(name)
 
                 if duplicated_factors:
-                    flash(f'Los siguientes factores ya existen: {
-                          ", ".join(duplicated_factors)}', 'danger')
+                    flash(f'Los siguientes factores ya existen: {", ".join(duplicated_factors)}', 'danger')
                 else:
                     flash('Se agregaron los factores correctamente', 'info')
 
@@ -112,6 +111,7 @@ def delete_factor(factor_id):
         if user:
             factor = db['factores']
             factor.delete_one({'_id': ObjectId(factor_id)})
+            flash('Factor actualizado correctamente.')
             return redirect(url_for('user.factores'))
         else:
             return redirect(url_for('session.login'))
@@ -139,6 +139,7 @@ def edit_factor():
                     }}
                 )
 
+            flash('Factor actualizado correctamente.')
             return redirect(url_for('user.factores'))
         else:
             return redirect(url_for('session.login'))
@@ -215,8 +216,7 @@ def add_items():
                     )
 
                 if duplicated_items:
-                    flash(f'Los siguientes items ya existen en el factor: {
-                          ", ".join(duplicated_items)}', 'danger')
+                    flash(f'Los siguientes items ya existen en el factor: {", ".join(duplicated_items)}', 'danger')
                 else:
                     flash('Se agregaron los items correctamente', 'info')
 
@@ -280,8 +280,8 @@ def delete_item(factor_id, item_id):
 
 
 # Ruta para actualizar un item
-@user_routes.route('/user/factor/<factor_id>/item/<item_name>/update', methods=['POST'])
-def update_item(factor_id, item_name):
+@user_routes.route('/user/factor/<factor_id>/item/<item_id>/update', methods=['POST'])
+def update_item(factor_id, item_id):
     if 'email' in session:
         email = session['email']
         user = get_user(email)
@@ -292,7 +292,7 @@ def update_item(factor_id, item_name):
                 new_name = request.form.get('new_name')
                 items = factor.get('items', [])
                 for item in items:
-                    if item['name'] == item_name:
+                    if str(item['_id']) == item_id:
                         item['name'] = new_name
                         break
 
@@ -309,6 +309,7 @@ def update_item(factor_id, item_name):
             return redirect(url_for('session.login'))
     else:
         return redirect(url_for('session.login'))
+
 
 
 # Ruta para registrar subordinados
@@ -392,6 +393,15 @@ def subordinados():
 # Method DELETE para usuarios
 @user_routes.route('/delete/subordinado/<string:sub_id>/')
 def delete_sub(sub_id):
-    sub = db['subordinados']
-    sub.delete_one({'_id': ObjectId(sub_id)})
-    return redirect(url_for('user.subordinados'))
+    if 'email' in session:
+        email = session['email']
+        user = get_user(email)
+        if user:
+            sub = db['subordinados']
+            sub.delete_one({'_id': ObjectId(sub_id)})
+            flash('Subordinado eliminado correctamente.')
+            return redirect(url_for('user.subordinados')) 
+        else:
+            return redirect(url_for('session.login'))
+    else:
+        return redirect(url_for('session.login'))

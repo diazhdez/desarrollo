@@ -79,6 +79,13 @@
               </div>
             </div>
           </form>
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <div class="alert alert-info" role="alert">
+            {{ messages[0] }}
+          </div>
+          {% endif %}
+          {% endwith %}
           <div class="row g-5">
             {% for factor in factores %}
             <div class="col-md-6 mb-3">
@@ -93,7 +100,8 @@
                       <small>Cambiar Nombre:</small>
                       <input class="form-control" value="{{ factor.name }}" name="name">
                     </div>
-                    <a href="{{ url_for('user.view_items', factor_id=factor._id) }}" class="btn boton mt-3">Ver Items</a>
+                    <a href="{{ url_for('user.view_items', factor_id=factor._id) }}" class="btn boton mt-3">Ver
+                      Items</a>
                     <button type="submit" class="btn botooon mt-3">Actualizar</button>
                     <a href="{{ url_for('user.delete_factor', factor_id=factor._id) }}"
                       class="btn btn-danger btn-delete mt-3">Eliminar</a>

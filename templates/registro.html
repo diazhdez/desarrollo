@@ -73,11 +73,9 @@
               <div class="card-body text-center mt-2">
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                <ul class="messages">
-                  {% for message in messages %}
-                  {{ message }}
-                  {% endfor %}
-                </ul>
+                <div class="alert alert-info" role="alert">
+                  {{ messages[0] }}
+                </div>
                 {% endif %}
                 {% endwith %}
                 <button class="btn boton user-button" data-toggle="collapse" data-target="#info_user"
@@ -99,8 +97,8 @@
                       </div>
                       <div class="col-mt-4 mb-3">
                         <label for="phone">Empresa:</label>
-                        <input type="text" class="form-control" id="empresa" name="empresa" placeholder="Ingresa la empresa"
-                          required>
+                        <input type="text" class="form-control" id="empresa" name="empresa"
+                          placeholder="Ingresa la empresa" required>
                       </div>
                     </div>
                     <div class="form-row">
