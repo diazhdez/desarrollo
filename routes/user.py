@@ -173,7 +173,6 @@ def add_items():
         user = get_user(email)
         if user:
             if request.method == 'POST':
-                print(request.form)
                 factor_id = request.form.get('factor_id')
                 names = request.form.getlist('names[]')
                 duplicated_items = []
@@ -194,18 +193,26 @@ def add_items():
                         'El factor seleccionado no existe o no pertenece al usuario', 'danger')
                     return redirect(url_for('user.user') + '#opciones')
 
+                new_items = []
                 for name in names:
                     if name.strip():
+                        item_id = ObjectId()  # Generar un ID único para el ítem
                         existing_item = db['factores'].find_one(
-                            {'_id': ObjectId(factor_id), 'items.name': name}
+                            {'_id': ObjectId(factor_id), 'items._id': item_id}
                         )
                         if existing_item is None:
-                            db['factores'].update_one(
-                                {'_id': ObjectId(factor_id)},
-                                {'$push': {'items': {'name': name}}}
-                            )
+                            new_items.append({
+                                "_id": item_id,
+                                "name": name
+                            })
                         else:
                             duplicated_items.append(name)
+
+                if new_items:
+                    db['factores'].update_one(
+                        {'_id': ObjectId(factor_id)},
+                        {'$push': {'items': {'$each': new_items}}}
+                    )
 
                 if duplicated_items:
                     flash(f'Los siguientes items ya existen en el factor: {
@@ -242,24 +249,26 @@ def view_items(factor_id):
 
 
 # Ruta para eliminar items
-@user_routes.route('/user/factor/<factor_id>/item/<item_name>/delete', methods=['POST'])
-def delete_item(factor_id, item_name):
+@user_routes.route('/user/factor/<factor_id>/item/<item_id>/delete', methods=['POST'])
+def delete_item(factor_id, item_id):
     if 'email' in session:
         email = session['email']
         user = get_user(email)
         if user:
+            # Buscar el factor asociado al usuario
             factor = db['factores'].find_one(
-                {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
+                {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])}
+            )
             if factor:
-                items = factor.get('items', [])
-                updated_items = [
-                    item for item in items if item['name'] != item_name]
-
-                db['factores'].update_one(
-                    {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])},
-                    {'$set': {'items': updated_items}}
+                # Eliminar el ítem por su ID
+                result = db['factores'].update_one(
+                    {'_id': ObjectId(factor_id)},
+                    {'$pull': {'items': {'_id': ObjectId(item_id)}}}
                 )
-                flash("Ítem eliminado correctamente.")
+                if result.modified_count > 0:
+                    flash("Ítem eliminado correctamente.")
+                else:
+                    flash("Ítem no encontrado o no se pudo eliminar.")
                 return redirect(url_for('user.view_items', factor_id=factor_id))
             else:
                 flash("Factor no encontrado o no tienes permiso para eliminar ítems.")

@@ -151,7 +151,7 @@
               <p>
                 Empieza el cuestionaro
               </p>
-              <a href="">
+              <a href="#" id="openModalInstrucciones" data-bs-toggle="modal" data-bs-target="#modalInstrucciones">
                 <span>
                   Click
                 </span>
@@ -171,6 +171,9 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="modalUpdateSubLabel">Actualizar datos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
         <div class="modal-body">
           <form method="post" action="{{ url_for('sub.update_sub') }}">
@@ -204,6 +207,60 @@
               <button type="submit" class="btn boton">Actualizar Datos</button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para agregar subordinados -->
+  <div class="modal fade" id="modalInstrucciones" tabindex="-1" aria-labelledby="modalInstruccionesLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalInstruccionesLabel">Instrucciones</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <p>Lea cuidadosamente cada enunciado y marque sobre el código que mejor refleje su opinión con base en la
+              siguiente escala:</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Estoy...</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>5</td>
+                  <td>Totalmente de acuerdo</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Mayormente de acuerdo</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Indiferente</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Pocas veces de acuerdo</td>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>Totalmente en desacuerdo</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer mt-3">
+            <a href="{{ url_for('sub.cuestionario') }}" class="btn boton ">Empezar</a>
+          </div>
         </div>
       </div>
     </div>
@@ -305,6 +362,22 @@
       background-color: #f8842b;
       color: white;
     }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    thead {
+      border-bottom: 2px solid black;
+      /* Línea que divide el head del body */
+    }
   </style>
 
   <!-- jQery -->
@@ -324,6 +397,14 @@
     document.getElementById('openModalSub').addEventListener('click', function (event) {
       event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
       var myModal = new bootstrap.Modal(document.getElementById('modalUpdateSub'));
+      myModal.show();
+    });
+  </script>
+
+  <script>
+    document.getElementById('openModalInstrucciones').addEventListener('click', function (event) {
+      event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
+      var myModal = new bootstrap.Modal(document.getElementById('modalInstrucciones'));
       myModal.show();
     });
   </script>

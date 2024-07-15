@@ -41,7 +41,7 @@
         <nav class="navbar navbar-expand-lg custom_nav-container ">
           <a class="navbar-brand" href="{{ url_for('user.user') }}">
             <span>
-              Usuario
+              Asesor
             </span>
           </a>
 
@@ -76,8 +76,8 @@
               <div>
                 <button class="btn boton btn-sm" data-toggle="modal" data-target="#editModal"
                   data-item="{{ item.name }}">Editar</button>
-                <form action="{{ url_for('user.delete_item', factor_id=factor._id, item_name=item.name) }}"
-                  method="post" style="display:inline;">
+                <form action="{{ url_for('user.delete_item', factor_id=factor._id, item_id=item._id) }}" method="post"
+                  style="display:inline;">
                   <button type="submit" class="btn btn-danger btn-sm btn-delete">Eliminar</button>
                 </form>
               </div>

@@ -39,9 +39,9 @@
     <header class="header_section">
       <div class="container-fluid">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ url_for('user.user') }}">
+          <a class="navbar-brand" href="{{ url_for('sub.sub') }}">
             <span>
-              Asesor
+              Clima Laboral
             </span>
           </a>
 
@@ -69,16 +69,6 @@
       <div class="container-xxl">
         <div class="container">
           <h2>Factores</h2>
-          <form method="post" action="{{ url_for('user.factores') }}">
-            <div class="row">
-              <div class="col-md-3 mb-3">
-                <input type="text" class="form-control" placeholder="Buscar factores" name="search_query">
-              </div>
-              <div class="col mb-3">
-                <button class="btn boton">Buscar</button>
-              </div>
-            </div>
-          </form>
           <div class="row g-5">
             {% for factor in factores %}
             <div class="col-md-6 mb-3">
@@ -87,17 +77,11 @@
                   <h5 class="text-center">{{ factor.name }}</h5>
                 </div>
                 <div class="card-body">
-                  <form method="post" action="{{ url_for('user.edit_factor') }}">
-                    <div class="row">
-                      <input type="hidden" class="form-control" value="{{ factor._id }}" name="factor_id" readonly>
-                      <small>Cambiar Nombre:</small>
-                      <input class="form-control" value="{{ factor.name }}" name="name">
-                    </div>
-                    <a href="{{ url_for('user.view_items', factor_id=factor._id) }}" class="btn boton mt-3">Ver Items</a>
-                    <button type="submit" class="btn botooon mt-3">Actualizar</button>
-                    <a href="{{ url_for('user.delete_factor', factor_id=factor._id) }}"
-                      class="btn btn-danger btn-delete mt-3">Eliminar</a>
-                  </form>
+                  <div class="row">
+                    <input type="hidden" class="form-control" value="{{ factor._id }}" name="factor_id" readonly>
+                  </div>
+                  <a href="{{ url_for('sub.cuestionario_items', factor_id=factor._id) }}"
+                    class="btn boton mt-3">Responder</a>
                 </div>
               </div>
             </div>
