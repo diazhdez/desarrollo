@@ -69,13 +69,13 @@
       <div class="container-xxl">
         <div class="container">
           <h2>Items del Factor: {{ factor.name }}</h2>
-          <form action="{{ url_for('sub.submit_responses', factor_id=factor._id) }}" method="post">
+          <form action="{{ url_for('sub.submit_answers', factor_id=factor._id) }}" method="post">
             <ul class="list-group">
               {% for item in items %}
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>{{ item.name }}</span>
                 <div>
-                  <select name="item_{{ loop.index }}" class="form-select">
+                  <select name="item_{{ item._id }}" class="form-select" required>
                     <option value="">Seleccione una opción</option>
                     {% for i in range(1, 6) %}
                     <option value="{{ i }}">{{ i }}</option>

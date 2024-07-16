@@ -16,3 +16,9 @@ def get_admin(email):
 def get_sub(email):
     sub = db['subordinados'].find_one({'email': email})
     return sub
+
+
+# Función para verificar si el usuario ha completado sus datos
+def sub_has_completed_info(sub_id):
+    info = db['info']
+    return info.find_one({'sub_id': str(sub_id)}) is not None

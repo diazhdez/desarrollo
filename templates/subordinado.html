@@ -127,15 +127,25 @@
               <h5>
                 Información general
               </h5>
+              {% if sub.has_completed_info %}
+              <p>
+                Datos actualizados
+              </p>
+              {% else %}
               <p>
                 Actualiza algunos datos
               </p>
+              {% endif %}
+              {% if sub.has_completed_info %}
+
+              {% else %}
               <a href="#" id="openModalSub" data-bs-toggle="modal" data-bs-target="#modalUpdateSub">
                 <span>
                   Click
                 </span>
                 <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
               </a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -165,6 +175,9 @@
   </section>
   <!-- end service section -->
 
+  {% if sub.has_completed_info %}
+
+  {% else %}
   <!-- Modal para agregar subordinados -->
   <div class="modal fade" id="modalUpdateSub" tabindex="-1" aria-labelledby="modalUpdateSubLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -177,7 +190,6 @@
         </div>
         <div class="modal-body">
           <form method="post" action="{{ url_for('sub.update_sub') }}">
-            <input type="hidden" class="form-control" value="{{ sub._id }}" name="sub_id" readonly>
             <div class="form-group">
               <label for="genero">Género:</label>
               <select id="genero" name="genero" class="form-select" required>
@@ -211,6 +223,7 @@
       </div>
     </div>
   </div>
+  {% endif %}
 
   <!-- Modal para agregar subordinados -->
   <div class="modal fade" id="modalInstrucciones" tabindex="-1" aria-labelledby="modalInstruccionesLabel"
@@ -258,9 +271,12 @@
               </tbody>
             </table>
           </div>
+          {% if sub.has_completed_info %}
           <div class="modal-footer mt-3">
             <a href="{{ url_for('sub.cuestionario') }}" class="btn boton ">Empezar</a>
           </div>
+          {% else %}
+          {% endif %}
         </div>
       </div>
     </div>

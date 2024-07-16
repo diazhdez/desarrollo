@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, url_for, redirect, flash, session, request
 
-from functions.functions import get_sub
+from functions.functions import get_sub, sub_has_completed_info
 
 from bson import ObjectId
 
@@ -19,6 +19,9 @@ def sub():
         # Función para obtener datos del subordinado desde MongoDB
         sub = get_sub(email)
         if sub:
+            # Buscar si el subordinado ha mandado su info
+            sub['has_completed_info'] = sub_has_completed_info(sub['_id'])
+
             return render_template('subordinado.html', sub=sub)
         else:
             return redirect(url_for('session.login'))
@@ -36,12 +39,14 @@ def update_sub():
         if sub:
             if request.method == 'POST':
                 print(request.form)
-                sub_id = request.form.get('sub_id')
+                sub_id = sub['_id']
                 genero = request.form.get('genero')
                 age = request.form.get('age')
                 antiguedad = request.form.get('antiguedad')
 
                 subs = db['subordinados']
+                info = db['info']
+
                 subs.update_one(
                     {'_id': ObjectId(sub_id)},
                     {'$set': {
@@ -50,6 +55,8 @@ def update_sub():
                         'antiguedad': antiguedad
                     }}
                 )
+
+                info.insert_one({'sub_id': str(sub_id)})
 
             flash('Datos actualizados correctamente.')
             return redirect(url_for('sub.sub') + '#opcionesSub')
@@ -101,27 +108,29 @@ def cuestionario_items(factor_id):
         return redirect(url_for('session.login'))
 
 
+# Ruta para guardar las respuestas
 @sub_routes.route('/subordinado/cuestionario/<factor_id>/submit', methods=['POST'])
-def submit_responses(factor_id):
+def submit_answers(factor_id):
     if 'email' in session:
         email = session['email']
         sub = get_sub(email)
         if sub:
             # Crear un documento de respuesta
-            responses = []
+            answers = []
             for key, value in request.form.items():
                 if value:
-                    item_index = key.split('_')[1]
-                    responses.append({
-                        "item_id": item_index,
-                        "response": int(value)
+                    # Obtener el item_id del formulario
+                    item_id = key.split('_')[1]
+                    answers.append({
+                        "item_id": item_id,
+                        "answer": int(value)
                     })
-            
-            # Insertar respuestas en la colección de respuestas
-            db['respuestas'].insert_one({
-                "subordinado_id": sub['_id'],
-                "factor_id": ObjectId(factor_id),
-                "responses": responses
+
+            # Insertar respuestas en la colección de answers
+            db['answers'].insert_one({
+                "subordinado_id": str(sub['_id']),
+                "factor_id": str(factor_id),
+                "answers": answers
             })
 
             flash("Respuestas enviadas exitosamente.")
