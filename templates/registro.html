@@ -66,18 +66,18 @@
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-md-8">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="alert alert-info" role="alert">
+              {{ messages[0] }}
+            </div>
+            {% endif %}
+            {% endwith %}
             <div class="card shadow">
               <div class="card-header">
                 Registrar:
               </div>
               <div class="card-body text-center mt-2">
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                <div class="alert alert-info" role="alert">
-                  {{ messages[0] }}
-                </div>
-                {% endif %}
-                {% endwith %}
                 <button class="btn boton user-button" data-toggle="collapse" data-target="#info_user"
                   aria-expanded="false" aria-controls="info_user" name="tipo_registro">Usuario</button>
                 <button class="btn boton admin-button" data-toggle="collapse" data-target="#info_admin"
@@ -110,14 +110,14 @@
                       <div class="col-mt-4 mb-3">
                         <label for="password">Contraseña:</label>
                         <input type="password" class="form-control" id="password" name="password"
-                          placeholder="Ingresa una contraseña" required>
+                          placeholder="Ingresa una contraseña" required minlength="8">
                       </div>
                     </div>
                     <div class="form-row">
                       <div class="col-mt-4 mb-3">
                         <label for="phone">Teléfono:</label>
                         <input type="tel" class="form-control" id="phone" name="phone" placeholder="Ingresa un teléfono"
-                          required>
+                          required maxlength="10">
                       </div>
                       <div class="col-mt-4 mb-3">
 
@@ -153,12 +153,12 @@
                       <div class="col-mt-4 mb-3">
                         <label for="password">Contraseña:</label>
                         <input type="password" class="form-control" id="password" name="password"
-                          placeholder="Ingresa una contraseña" required>
+                          placeholder="Ingresa una contraseña" required minlength="8">
                       </div>
                       <div class="col-mt-4 mb-3">
                         <label for="phone">Teléfono:</label>
                         <input type="tel" class="form-control" id="phone" name="phone" placeholder="Ingresa un teléfono"
-                          required>
+                          required maxlength="10">
                       </div>
                     </div>
                     <div class="form-row">
