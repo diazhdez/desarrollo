@@ -97,6 +97,15 @@ def cuestionario_items(factor_id):
             factor = db['factores'].find_one(
                 {'_id': ObjectId(factor_id), 'user_id': str(sub['user_id'])})
             if factor:
+                # Verificar si ya ha respondido
+                existing_answers = db['answers'].find_one({
+                    'subordinado_id': str(sub['_id']),
+                    'factor_id': str(factor_id)
+                })
+                if existing_answers:
+                    flash("Ya has respondido este factor.")
+                    return redirect(url_for('sub.cuestionario'))
+
                 items = factor.get('items', [])
                 return render_template('sub_items.html', factor=factor, items=items)
             else:
@@ -115,6 +124,15 @@ def submit_answers(factor_id):
         email = session['email']
         sub = get_sub(email)
         if sub:
+            # Verificar si ya ha respondido
+            existing_answers = db['answers'].find_one({
+                'subordinado_id': str(sub['_id']),
+                'factor_id': str(factor_id)
+            })
+            if existing_answers:
+                flash("Ya has respondido este factor.")
+                return redirect(url_for('sub.cuestionario'))
+
             # Crear un documento de respuesta
             answers = []
             for key, value in request.form.items():
