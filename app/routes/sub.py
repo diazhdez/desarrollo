@@ -1,18 +1,14 @@
-from flask import Blueprint, render_template, url_for, redirect, flash, session, request
+from flask import Blueprint, current_app, render_template, url_for, redirect, flash, session, request
 
-from functions.functions import get_sub, sub_has_completed_info
+from app.functions.functions import get_sub, sub_has_completed_info
 
 from bson import ObjectId
-
-import database.database as dbase
-
-db = dbase.dbConnection()
 
 sub_routes = Blueprint('sub', __name__)
 
 
 # Ruta para inicio de subordinados
-@sub_routes.route('/subordinado/')
+@sub_routes.route('/sub/')
 def sub():
     if 'email' in session:
         email = session['email']
@@ -44,6 +40,8 @@ def update_sub():
                 age = request.form.get('age')
                 antiguedad = request.form.get('antiguedad')
 
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
                 subs = db['subordinados']
                 info = db['info']
 
@@ -56,7 +54,10 @@ def update_sub():
                     }}
                 )
 
-                info.insert_one({'sub_id': str(sub_id)})
+                info.insert_one({
+                    'sub_id': str(sub_id),
+                    'user_id': sub['user_id']
+                })
 
             flash('Datos actualizados correctamente.')
             return redirect(url_for('sub.sub') + '#opcionesSub')
@@ -78,6 +79,8 @@ def cuestionario():
             # Asegúrate de que user_id sea un string
             user_id = str(sub['user_id'])  # Obtener el user_id del usuario
 
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             factores = db['factores'].find({'user_id': user_id})
 
             return render_template('cuestionario.html', factores=factores)
@@ -94,6 +97,8 @@ def cuestionario_items(factor_id):
         email = session['email']
         sub = get_sub(email)
         if sub:
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             factor = db['factores'].find_one(
                 {'_id': ObjectId(factor_id), 'user_id': str(sub['user_id'])})
             if factor:
@@ -124,6 +129,8 @@ def submit_answers(factor_id):
         email = session['email']
         sub = get_sub(email)
         if sub:
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             # Verificar si ya ha respondido
             existing_answers = db['answers'].find_one({
                 'subordinado_id': str(sub['_id']),
@@ -148,6 +155,7 @@ def submit_answers(factor_id):
             db['answers'].insert_one({
                 "subordinado_id": str(sub['_id']),
                 "factor_id": str(factor_id),
+                "user_id": str(sub['user_id']),
                 "answers": answers
             })
 

@@ -1,14 +1,10 @@
-from flask import Blueprint, render_template, url_for, redirect, flash, session, request
+from flask import Blueprint, current_app, render_template, url_for, redirect, flash, session, request
 
-from functions.functions import get_admin
+from app.functions.functions import get_admin
 
 from bson import ObjectId
 
 import bcrypt
-
-import database.database as dbase
-
-db = dbase.dbConnection()
 
 admin_routes = Blueprint('admin', __name__)
 
@@ -48,6 +44,7 @@ def register_user():
         admin = get_admin(email)
         if admin:
             if request.method == 'POST':
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
                 user = db['users']
                 existing_user = user.find_one(
                     {'email': request.form['email']})
@@ -87,6 +84,7 @@ def register_admin():
         admin = get_admin(email)
         if admin:
             if request.method == 'POST':
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
                 admin = db['admin']
                 existing_admin = admin.find_one(
                     {'email': request.form['email']})
@@ -125,6 +123,7 @@ def users():
             users = []
             if request.method == 'POST':
                 search_query = request.form.get('search_query')
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
                 users = db['users'].find({
                     '$or': [
                         {'name': {'$regex': search_query, '$options': 'i'}},
@@ -133,6 +132,7 @@ def users():
                     ]
                 })
             else:
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
                 users = db['users'].find()
 
             return render_template('users.html', users=users)
@@ -157,6 +157,7 @@ def edit_user():
                 new_empresa = request.form.get('empresa')
                 new_phone = request.form.get('phone')
 
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
                 user = db['users']
                 user.update_one(
                     {'_id': ObjectId(user_id)},
@@ -182,12 +183,24 @@ def delete_user(user_id):
         email = session['email']
         admin = get_admin(email)
         if admin:
+            # Accede a las colecciones directamente desde la conexión a la base de datos
+            db = current_app.db
             users = db['users']
+            factores = db['factores']
+            sub = db['subordinados']
+            answers = db['answers']
+            info = db['info']
             users.delete_one({'_id': ObjectId(user_id)})
+            factores.delete_many({'user_id': str(user_id)})
+            sub.delete_many({'user_id': str(user_id)})
+            answers.delete_many({'user_id': str(user_id)})
+            info.delete_many({'user_id': str(user_id)})
             flash('Asesor eliminado correctamente.')
             return redirect(url_for('admin.users'))
         else:
-            return redirect
+            return redirect(url_for('session.login'))
+    else:
+        return redirect(url_for('session.login'))
 
 
 # Ruta para visualizar los administradores
@@ -197,6 +210,8 @@ def admins():
         email = session['email']
         admin = get_admin(email)
         if admin:
+            # Accede a las colecciones directamente desde la conexión a la base de datos
+            db = current_app.db
             admins = db['admin'].find()
             return render_template('admins.html', admins=admins)
         else:
@@ -212,6 +227,8 @@ def delete_admin(admin_id):
         email = session['email']
         admin = get_admin(email)
         if admin:
+            # Accede a las colecciones directamente desde la conexión a la base de datos
+            db = current_app.db
             admin = db['admin']
             admin.delete_one({'_id': ObjectId(admin_id)})
             flash('Administrador eliminado correctamente.')

@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, url_for, redirect, flash, session, request, jsonify
+from flask import Blueprint, current_app, render_template, url_for, redirect, flash, session, request, jsonify
 
-from functions.functions import get_user
+from app.functions.functions import get_user
 
 from bson import ObjectId
 
@@ -9,10 +9,6 @@ from bson.errors import InvalidId
 from random import randint
 
 import bcrypt
-
-import database.database as dbase
-
-db = dbase.dbConnection()
 
 user_routes = Blueprint('user', __name__)
 
@@ -43,8 +39,12 @@ def add_factors():
             if request.method == 'POST':
                 # Línea de depuración para ver el contenido del formulario
                 print(request.form)
+
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
                 factors = db['factores']
                 # Obtener la lista de nombres de factores
+
                 names = request.form.getlist('names[]')
                 user_id = str(user['_id'])  # Obtener el user_id del usuario
                 duplicated_factors = []
@@ -85,6 +85,9 @@ def factores():
             user_id = str(user['_id'])  # Obtener el user_id del usuario
 
             if request.method == 'POST':
+                # Accede a las colecciones directamente desde la conexión a la base de datos
+                db = current_app.db
+
                 search_query = request.form.get('search_query')
                 factores = db['factores'].find({
                     '$or': [
@@ -92,6 +95,8 @@ def factores():
                     ]
                 })
             else:
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
                 factores = db['factores'].find({'user_id': user_id})
 
             return render_template('factores.html', factores=factores)
@@ -109,9 +114,12 @@ def delete_factor(factor_id):
         # Función para obtener datos del usuario desde MongoDB
         user = get_user(email)
         if user:
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             factor = db['factores']
             factor.delete_one({'_id': ObjectId(factor_id)})
-            flash('Factor actualizado correctamente.')
+
+            flash('Factor eliminado correctamente.')
             return redirect(url_for('user.factores'))
         else:
             return redirect(url_for('session.login'))
@@ -130,6 +138,8 @@ def edit_factor():
             if request.method == 'POST':
                 factor_id = request.form.get('factor_id')
                 new_name = request.form.get('name')
+
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
 
                 factor = db['factores']
                 factor.update_one(
@@ -153,9 +163,13 @@ def get_user_factors():
         email = session['email']
         user = get_user(email)
         if user:
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             user_id = str(user['_id'])  # Obtener el user_id del usuario
             factors = list(db['factores'].find(
-                {'user_id': user_id}, {'name': 1}))
+                {'user_id': user_id}, {'name': 1})
+            )
+
             # Convertir ObjectId a cadena
             for factor in factors:
                 factor['_id'] = str(factor['_id'])
@@ -183,6 +197,7 @@ def add_items():
                     return redirect(url_for('user.user') + '#opciones')
 
                 try:
+                    db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
                     factor = db['factores'].find_one(
                         {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
                 except InvalidId:
@@ -234,6 +249,8 @@ def view_items(factor_id):
         email = session['email']
         user = get_user(email)
         if user:
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             factor = db['factores'].find_one(
                 {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
             if factor:
@@ -255,6 +272,8 @@ def delete_item(factor_id, item_id):
         email = session['email']
         user = get_user(email)
         if user:
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             # Buscar el factor asociado al usuario
             factor = db['factores'].find_one(
                 {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])}
@@ -286,6 +305,8 @@ def update_item(factor_id, item_id):
         email = session['email']
         user = get_user(email)
         if user:
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             factor = db['factores'].find_one(
                 {'_id': ObjectId(factor_id), 'user_id': str(user['_id'])})
             if factor:
@@ -311,7 +332,6 @@ def update_item(factor_id, item_id):
         return redirect(url_for('session.login'))
 
 
-
 # Ruta para registrar subordinados
 @user_routes.route('/register/subordinado/', methods=['POST', 'GET'])
 def register_sub():
@@ -328,6 +348,8 @@ def register_sub():
                 user_id = str(user['_id'])  # Obtener el user_id del asesor
                 asesor = user['name']
                 empresa = user['empresa']
+
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
 
                 sub = db['subordinados']
 
@@ -369,6 +391,8 @@ def subordinados():
             user_id = str(user['_id'])  # Obtener el user_id del usuario
 
             if request.method == 'POST':
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
                 search_query = request.form.get('search_query')
                 subs = db['subordinados'].find({
                     '$or': [
@@ -381,6 +405,8 @@ def subordinados():
                     ]
                 })
             else:
+                db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
                 subs = db['subordinados'].find({'user_id': user_id})
 
             return render_template('subs.html', subordinados=subs)
@@ -397,10 +423,17 @@ def delete_sub(sub_id):
         email = session['email']
         user = get_user(email)
         if user:
+            db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
+
             sub = db['subordinados']
+            info = db['info']
+            answers = db['answers']
             sub.delete_one({'_id': ObjectId(sub_id)})
+            info.delete_one({'sub_id': str(sub_id)})
+            answers.delete_many({'subordinado_id': str(sub_id)})
+
             flash('Subordinado eliminado correctamente.')
-            return redirect(url_for('user.subordinados')) 
+            return redirect(url_for('user.subordinados'))
         else:
             return redirect(url_for('session.login'))
     else:

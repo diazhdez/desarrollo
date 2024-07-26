@@ -1,12 +1,8 @@
 from flask import Blueprint, render_template, url_for, redirect, flash, session, request
 
-from functions.functions import *
+from app.functions.functions import *
 
 import bcrypt
-
-import database.database as dbase
-
-db = dbase.dbConnection()
 
 session_routes = Blueprint('session', __name__)
 
@@ -23,10 +19,10 @@ def login():
 
         if admin:
             return redirect(url_for('admin.admin'))
-        
+
         if user:
             return redirect(url_for('user.user'))
-        
+
         if sub:
             return redirect(url_for('sub.sub'))
 
@@ -37,6 +33,7 @@ def login():
 # Ruta para iniciar usuario o admin
 @session_routes.route('/iniciar/', methods=['POST'])
 def iniciar():
+    db = current_app.get_db_connection()  # Obtener la conexión a la base de datos
     admin = db['admin']
     users = db['users']
     sub = db['subordinados']
@@ -54,7 +51,7 @@ def iniciar():
     if login_admin and bcrypt.checkpw(password.encode('utf-8'), login_admin['password']):
         session['email'] = email
         return redirect(url_for('admin.admin'))
-    
+
     # Buscar en la colección de subprdinados
     login_sub = sub.find_one({'email': email})
     if login_sub and bcrypt.checkpw(password.encode('utf-8'), login_sub['password']):

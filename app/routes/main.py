@@ -1,9 +1,5 @@
 from flask import Blueprint, render_template
 
-import database.database as dbase
-
-db = dbase.dbConnection()
-
 main_routes = Blueprint('main', __name__)
 
 
